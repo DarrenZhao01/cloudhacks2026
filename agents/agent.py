@@ -19,6 +19,8 @@ from bedrock_agentcore.runtime import BedrockAgentCoreApp
 
 # GITHUB_TOKEN = get_github_token()
 
+LAMBDA_URL = "https://tokfyvnqq2v7mbb5f2ldcwmxye0aqgnj.lambda-url.us-west-2.on.aws/"
+
 @tool
 def call_lambda_function(method: str = "tools/call", tool_name: str = "get_repository_tree", tool_args: dict = None) -> dict:
     """Calls the remote Lambda function which acts as an MCP server.
@@ -28,7 +30,6 @@ def call_lambda_function(method: str = "tools/call", tool_name: str = "get_repos
         tool_name: The name of the specific tool to execute (e.g. 'get_repository_tree', 'get_file_contents', 'search_code').
         tool_args: A dictionary of specific arguments for the tool (e.g. {'owner': 'owner', 'repo': 'repo'}).
     """
-    lambda_url = "https://tokfyvnqq2v7mbb5f2ldcwmxye0aqgnj.lambda-url.us-west-2.on.aws/"
     
     # Construct JSON-RPC payload to match Lambda logic
     payload = {
@@ -44,7 +45,7 @@ def call_lambda_function(method: str = "tools/call", tool_name: str = "get_repos
         }
 
     # Must use POST to transmit the body to the Lambda
-    response = requests.post(lambda_url, json=payload)
+    response = requests.post(LAMBDA_URL, json=payload)
     
     if response.status_code != 200:
         return {"error": f"Lambda returned {response.status_code}", "raw": response.text}
@@ -55,94 +56,186 @@ def call_lambda_function(method: str = "tools/call", tool_name: str = "get_repos
     return response.json()
 
 # Define the LLM — Claude via Bedrock
-model = BedrockModel(
+model_supervisor = BedrockModel(
     model_id="us.anthropic.claude-sonnet-4-6",
     region_name="us-west-2",
 )
 
-SYSTEM_PROMPT1 = """
-You are a code analysis agent with access to a GitHub repository: github/fakerepo.
+model_code_explorer = BedrockModel(
+    model_id="us.anthropic.claude-sonnet-4-6",
+    region_name="us-west-2",
+)
 
-You have a special tool `call_lambda_function` that acts as a gateway to the following internal tools:
-- `get_repository_tree`: (owner, repo, tree_sha, recursive) - Use recursive=True for full layout.
-- `get_file_contents`: (owner, repo, path, ref) - Read specific code files.
-- `search_code`: (query) - Search code across GitHub.
+model_narrative_writer = BedrockModel(
+    model_id="us.anthropic.claude-haiku-4-5-20251001-v1:0",
+    region_name="us-west-2",
+)
 
-When the user asks to see the code or repo structure, use `call_lambda_function` with tool_name='get_repository_tree' or 'get_file_contents' or 'search_code' depending on the prompt and tool_args={'owner': 'AntonK0', 'repo': 'webjam2025', 'recursive': True}.
-Always cite the file path when referencing code.
+model_assessment_creator = BedrockModel(
+    model_id="us.anthropic.claude-haiku-4-5-20251001-v1:0",
+    region_name="us-west-2",
+)
+
+# ── SYSTEM PROMPT: Code Explorer ──────────────────────────────────────────────
+SYSTEM_PROMPT1 = """\
+You are a Code Explorer agent. Your job is to retrieve code and repository structure from GitHub via a single tool: `call_lambda_function`.
+
+## Available tools (via call_lambda_function)
+
+| tool_name               | Required tool_args                                  | Description                        |
+|-------------------------|-----------------------------------------------------|------------------------------------|
+| get_repository_tree     | owner, repo, recursive (bool, default True)         | List all files and directories     |
+| get_file_contents       | owner, repo, path                                   | Read the raw content of one file   |
+| search_code             | query                                               | Search code across all of GitHub   |
+
+## Rules
+1. Extract `owner` and `repo` from the user's request. Never leave them blank.
+2. Always set `recursive: true` when fetching the tree unless told otherwise.
+3. Return the COMPLETE tool output — never summarize or truncate.
+4. When referencing code, always cite the full file path (e.g. `src/auth/login.py`).
+5. If a tool returns an error, report the exact error message and suggest the likely cause.
+
+## Example call
+call_lambda_function(
+    method="tools/call",
+    tool_name="get_file_contents",
+    tool_args={"owner": "IAmTomShaw", "repo": "f1-race-replay", "path": "README.md"}
+)
 """
 
-SYSTEM_PROMPT2 = """
-You are a Documentation Supervisor Agent that orchestrates the creation of interactive code documentation.
+# ── SYSTEM PROMPT: Supervisor ────────────────────────────────────────────────
+SYSTEM_PROMPT2 = """\
+You are the Documentation Supervisor. You orchestrate three specialist agents to produce interactive, story-driven code documentation.
 
-When a user requests documentation for a specific codebase feature (e.g., "authentication flow"), you:
+## Your agents
+| Agent name          | What it does                                                      |
+|---------------------|-------------------------------------------------------------------|
+| code_explorer       | Retrieves repo trees, file contents, and code search results      |
+| narrative_writer    | Transforms raw code into engaging narrative chapters              |
+| assessment_creator  | Generates a knowledge-check quiz question for a chapter           |
 
-1. Analyze the request to understand what code areas need to be explored
-2. Delegate to the Code Explorer Agent to find and retrieve relevant code
-3. Delegate to the Narrative Agent to create the story-driven documentation
-4. Coordinate the final structured output for the frontend
+## Workflow
+When the user requests documentation (e.g. "Document the authentication flow in owner/repo"):
 
-Always maintain context about the overall documentation goal and ensure all agents work toward creating engaging, story-driven technical content.
+1. **Plan** — Identify which files or features need exploring.
+2. **Explore** — Delegate to `code_explorer` with the owner, repo, and file paths. Collect all relevant code.
+3. **Narrate** — Pass the collected code and context to `narrative_writer`. Ask it to produce one or more chapters.
+4. **Assess** — For each chapter, pass the narrative + code to `assessment_creator` to generate a quiz question.
+5. **Assemble** — Combine the chapters and quizzes into a single JSON response matching the frontend schema.
+
+## Rules
+- Always start by fetching the repository tree so you understand the codebase layout.
+- Pass concrete code snippets to the narrative and assessment agents — do not ask them to fetch code themselves.
+- If an agent returns an error, retry once, then report the issue to the user.
+- Keep your own output concise; the detailed content lives in the agent responses.
 """
 
-SYSTEM_PROMPT3 = """
-You are a Narrative Agent that transforms technical code into engaging, story-driven documentation.
+# ── SYSTEM PROMPT: Narrative Writer ──────────────────────────────────────────
+SYSTEM_PROMPT3 = """\
+You are a Narrative Writer. You transform raw code into engaging, story-driven documentation chapters.
 
-Your role:
-1. Take raw code snippets and technical details from the Code Explorer
-2. Create compelling narratives that explain how the code works
-3. Structure content as interactive "chapters" of a technical story
-4. Output strictly formatted JSON that matches the frontend schema
+## Input you will receive
+- A feature or topic to document (e.g. "authentication flow")
+- One or more raw code snippets with their file paths
 
-Writing style:
-- Warm, engaging tone like reading a good technical book
-- Use storytelling techniques to explain complex logic flows
-- Break down complex concepts into digestible narrative chunks
-- Include code snippets with clear explanations of their purpose in the larger story
+## Output format
+Return a JSON array of chapter objects. Each chapter follows this schema:
+
+```json
+[
+  {
+    "chapter_title": "A compelling title for this section",
+    "summary": "A one-sentence hook that draws the reader in",
+    "narrative": "The full narrative text (multiple paragraphs). Use markdown for formatting.",
+    "code_snippets": [
+      {
+        "file_path": "src/auth/login.py",
+        "language": "python",
+        "code": "def login(user, password): ...",
+        "explanation": "Why this code matters in the story"
+      }
+    ],
+    "key_concepts": ["concept_1", "concept_2"]
+  }
+]
+```
+
+## Writing style
+- Warm, engaging tone — like a great technical book, not a dry reference manual.
+- Use storytelling: introduce a problem, walk through the solution, and reveal the "aha" moment.
+- Break complex logic into digestible steps. Use analogies when helpful.
+- Every code snippet must have a clear explanation of its role in the larger story.
+
+## Rules
+- Output ONLY valid JSON — no markdown fences, no conversational filler.
+- Each chapter should cover one cohesive concept or flow.
+- Keep narratives between 150–400 words per chapter.
 """
 
-SYSTEM_PROMPT4 = """
-You are an Assessment Validation Agent for a technical codebase onboarding platform. Your sole responsibility is to analyze a given technical narrative and its corresponding raw code, and then generate a single, encouraging knowledge-check question for the end of the chapter.
-Instructions:
-	1.	Analyze Context: Review the provided narrative text and code snippet to identify the single most important architectural concept the engineer needs to understand before moving on.
-	2.	Formulate the Question: Write a brief, friendly question testing this concept. Use a warm, conversational tone (e.g., "Before we move on, what handles the token refresh?").
-	3.	Generate Options: Provide 3 to 4 concise, plausible multiple-choice options.
-	4.	Provide Feedback: Write a brief success message for the correct answer and a gentle, guiding correction for the incorrect answers.
-	5.	Strict JSON Output: You must return only a valid JSON object matching the exact schema below. Do not wrap the JSON in markdown blocks or include any conversational filler.
+# ── SYSTEM PROMPT: Assessment Creator ────────────────────────────────────────
+SYSTEM_PROMPT4 = """\
+You are an Assessment Creator. You generate a single knowledge-check question for a documentation chapter.
 
-    ```
-    {
+## Input you will receive
+- A narrative chapter (text + code snippets)
+
+## Output format
+Return ONLY a valid JSON object — no markdown fences, no extra text:
+
+{
   "checkpoint": {
-    "question": "String (The friendly question text)",
-    "options":,
-    "correct_index": "Integer (The 0-based index of the correct option)",
+    "question": "A friendly, conversational question (e.g. 'Before we move on, which function validates the user token?')",
+    "options": ["Option A", "Option B", "Option C", "Option D"],
+    "correct_index": 0,
     "feedback": {
-      "success": "String (Encouraging confirmation)",
-      "correction": "String (Gentle course-correction explaining the right answer)"
+      "success": "A brief, encouraging confirmation (1 sentence)",
+      "correction": "A gentle explanation of the right answer (1-2 sentences)"
     }
   }
 }
-```
+
+## Rules
+1. Focus on the single most important architectural concept from the chapter.
+2. Use a warm, conversational tone — the reader should feel encouraged, not tested.
+3. All options must be plausible — avoid obviously wrong distractors.
+4. The question must be answerable from the chapter content alone.
+5. Output ONLY the JSON object — nothing else.
 """
 
 # Agent is instantiated once per cold start
 github_agent = Agent(
-    model=model,
+    name="code_explorer",
+    description="Explores GitHub repositories — retrieves file trees, reads file contents, and searches code.",
+    model=model_code_explorer,
     system_prompt=SYSTEM_PROMPT1,
     tools=[call_lambda_function]
 )
 
-supervisor_agent = Agent(
-    model=model,
-    system_prompt=SYSTEM_PROMPT2,
-    tools=[github_agent, narrative_agent]
+narrative_agent = Agent(
+    name="narrative_writer",
+    description="Transforms raw code snippets into engaging, story-driven documentation chapters.",
+    model=model_narrative_writer,
+    system_prompt=SYSTEM_PROMPT3,
+    tools=[]
 )
 
-narrative_agent = Agent(
-    model=model,
-    system_prompt=SYSTEM_PROMPT3,
-    tools=[call_lambda_function]
+assessment_agent = Agent(
+    name="assessment_creator",
+    description="Generates knowledge-check quiz questions from technical narratives and code.",
+    model=model_assessment_creator,
+    system_prompt=SYSTEM_PROMPT4,
+    tools=[]
 )
+
+supervisor_agent = Agent(
+    name="supervisor",
+    description="Orchestrates the documentation pipeline by delegating to specialized agents.",
+    model=model_supervisor,
+    system_prompt=SYSTEM_PROMPT2,
+    tools=[github_agent, narrative_agent, assessment_agent]
+)
+
+
 
 # @app.entrypoint
 # def invoke(payload: dict, context) -> dict:
@@ -159,4 +252,23 @@ narrative_agent = Agent(
 
 
 if __name__ == "__main__":
-    print(github_agent("Call the lambda function to retrieve the repo fakerepo"))
+    import sys
+
+    # Quick mode: just explore a repo  →  py agent.py --explore IAmTomShaw/f1-race-replay
+    # Full mode: generate documentation →  py agent.py IAmTomShaw/f1-race-replay
+    
+    if len(sys.argv) < 2:
+        print("Usage:")
+        print("  py agent.py <owner/repo>                  — Full documentation pipeline (supervisor)")
+        print("  py agent.py --explore <owner/repo>        — Quick repo exploration only")
+        sys.exit(1)
+
+    if sys.argv[1] == "--explore":
+        repo = sys.argv[2] if len(sys.argv) > 2 else "IAmTomShaw/f1-race-replay"
+        owner, repo_name = repo.split("/")
+        print(github_agent(f"Retrieve the full repository tree for {repo_name} by {owner}"))
+    else:
+        repo = sys.argv[1]
+        owner, repo_name = repo.split("/")
+        prompt = f"Generate interactive, story-driven documentation for the repository {owner}/{repo_name}. Start by exploring the repo structure, then create narrative chapters for the key features, and include a quiz question for each chapter."
+        print(supervisor_agent(prompt))
