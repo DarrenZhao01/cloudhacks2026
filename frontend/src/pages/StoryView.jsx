@@ -7,15 +7,29 @@ import {
   HiArrowRight,
 } from "react-icons/hi";
 import CodeViewer from "../components/CodeViewer";
-import { AUTH_CHAPTER_1 } from "../data/chapters";
+import { CHAPTERS_MAP } from "../data/chapters";
+import useProgress from "../hooks/useProgress";
 
 export default function StoryView() {
   const { journeyId, chapterIndex } = useParams();
-  const chapter = AUTH_CHAPTER_1; // Static for now
+  const chapterNum = Number(chapterIndex) || 1;
+  const chapter = CHAPTERS_MAP[chapterNum] || CHAPTERS_MAP[1];
 
   const [activeSection, setActiveSection] = useState(0);
+  const [isComplete, setIsComplete] = useState(false);
   const sectionRefs = useRef([]);
   const narrativeRef = useRef(null);
+  const bottomRef = useRef(null);
+
+  const { markChapterComplete } = useProgress(journeyId || "auth-flow");
+
+  /* Reset state when navigating to a different chapter */
+  useEffect(() => {
+    setActiveSection(0);
+    setIsComplete(false);
+    sectionRefs.current = [];
+    if (narrativeRef.current) narrativeRef.current.scrollTop = 0;
+  }, [chapterNum]);
 
   /* Track which narrative section is in view */
   useEffect(() => {
@@ -38,13 +52,29 @@ export default function StoryView() {
     return () => observer.disconnect();
   }, []);
 
+  /* Track when user scrolls to bottom marker */
+  useEffect(() => {
+    const bottomObserver = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !isComplete) {
+          setIsComplete(true);
+          markChapterComplete(chapterNum);
+        }
+      },
+      { threshold: 0.5 }
+    );
+    if (bottomRef.current) bottomObserver.observe(bottomRef.current);
+
+    return () => bottomObserver.disconnect();
+  }, [isComplete, markChapterComplete, chapterNum]);
+
   return (
     <div className="min-h-screen bg-background-light text-slate-800 font-display flex flex-col overflow-hidden">
       {/* Progress bar */}
       <div className="fixed top-0 left-0 w-full h-1 bg-slate-200 z-50">
         <div
           className="h-full bg-primary rounded-r-full transition-all duration-700 ease-out"
-          style={{ width: `${chapter.progress}%` }}
+          style={{ width: isComplete ? "100%" : `${chapter.progress}%` }}
         />
       </div>
 
@@ -124,7 +154,7 @@ export default function StoryView() {
             ))}
 
             {/* Chapter complete marker */}
-            <div className="mt-32 pt-16 border-t border-slate-200 text-center">
+            <div ref={bottomRef} className="mt-32 pt-16 border-t border-slate-200 text-center">
               <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <HiCheck className="text-3xl" />
               </div>
@@ -137,11 +167,24 @@ export default function StoryView() {
 
           {/* Floating next chapter CTA */}
           <div className="sticky bottom-8 left-0 right-0 px-6 md:px-12 flex justify-center">
-            <button className="bg-primary hover:bg-[#d5582a] text-white font-sans font-medium px-8 py-4 rounded-full shadow-[0_8px_24px_rgba(238,98,47,0.3)] transform transition-all hover:-translate-y-1 flex items-center gap-3 text-base">
-              Continue to Chapter {chapter.nextChapter.number}:{" "}
-              {chapter.nextChapter.title}
-              <HiArrowRight className="text-lg" />
-            </button>
+            {chapter.nextChapter ? (
+              <Link
+                to={`/journey/${journeyId || "auth-flow"}/chapter/${chapterNum + 1}`}
+                className="bg-primary hover:bg-[#d5582a] text-white font-sans font-medium px-8 py-4 rounded-full shadow-[0_8px_24px_rgba(238,98,47,0.3)] transform transition-all hover:-translate-y-1 flex items-center gap-3 text-base no-underline"
+              >
+                Continue to Chapter {chapter.nextChapter.number}:{" "}
+                {chapter.nextChapter.title}
+                <HiArrowRight className="text-lg" />
+              </Link>
+            ) : (
+              <Link
+                to={`/journey/${journeyId || "auth-flow"}`}
+                className="bg-success hover:bg-green-600 text-white font-sans font-medium px-8 py-4 rounded-full shadow-[0_8px_24px_rgba(34,197,94,0.3)] transform transition-all hover:-translate-y-1 flex items-center gap-3 text-base no-underline"
+              >
+                <HiCheck className="text-lg" />
+                Journey Complete — Back to Map
+              </Link>
+            )}
           </div>
         </div>
 

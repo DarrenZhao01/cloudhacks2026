@@ -8,10 +8,28 @@ import {
 import { HiListBullet } from "react-icons/hi2";
 import ChapterCard from "../components/ChapterCard";
 import { AUTH_JOURNEY } from "../data/journeys";
+import useProgress from "../hooks/useProgress";
 
 export default function JourneyMap() {
   const { journeyId } = useParams();
   const journey = AUTH_JOURNEY;
+  const { isChapterComplete } = useProgress(journeyId || "auth-flow");
+
+  /* Derive live chapter statuses from stored progress */
+  const chapters = journey.chapters.map((ch, idx) => {
+    const chapterNum = idx + 1;
+    if (isChapterComplete(chapterNum)) {
+      return { ...ch, status: "completed" };
+    }
+    // First incomplete chapter is "current"
+    const allPreviousComplete = journey.chapters
+      .slice(0, idx)
+      .every((_, i) => isChapterComplete(i + 1));
+    if (allPreviousComplete) {
+      return { ...ch, status: "current" };
+    }
+    return { ...ch, status: "locked" };
+  });
 
   return (
     <div className="bg-background-light text-text-main h-screen flex flex-col overflow-hidden antialiased">
@@ -82,11 +100,11 @@ export default function JourneyMap() {
 
             {/* Timeline */}
             <div className="relative">
-              {journey.chapters.map((chapter, idx) => (
+              {chapters.map((chapter, idx) => (
                 <ChapterCard
                   key={chapter.id}
                   chapter={chapter}
-                  isLast={idx === journey.chapters.length - 1}
+                  isLast={idx === chapters.length - 1}
                   journeyId={journeyId}
                   chapterIndex={idx + 1}
                 />
@@ -98,3 +116,4 @@ export default function JourneyMap() {
     </div>
   );
 }
+
