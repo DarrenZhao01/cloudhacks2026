@@ -4,15 +4,9 @@
       "resources": {
         "runtimes": {
           "code_explorer": {
-            "runtimeId": "coder_code_explorer-6VW2x1Hw4o",
-            "runtimeArn": "arn:aws:bedrock-agentcore:us-west-2:641748024059:runtime/coder_code_explorer-6VW2x1Hw4o",
-            "roleArn": "arn:aws:iam::641748024059:role/AgentCore-coder-default-ApplicationAgentCodeExplore-6QHbweIZikYt"
-          }
-        },
-        "memories": {
-          "code_explorerMemory": {
-            "memoryId": "coder_code_explorerMemory-MyEr9GH76U",
-            "memoryArn": "arn:aws:bedrock-agentcore:us-west-2:641748024059:memory/coder_code_explorerMemory-MyEr9GH76U"
+            "runtimeId": "coder_code_explorer-aUeVgk8CiC",
+            "runtimeArn": "arn:aws:bedrock-agentcore:us-west-2:641748024059:runtime/coder_code_explorer-aUeVgk8CiC",
+            "roleArn": "arn:aws:iam::641748024059:role/AgentCore-coder-default-ApplicationAgentCodeExplore-wNbVkditA6kR"
           }
         },
         "stackName": "AgentCore-coder-default"

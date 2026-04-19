@@ -18,13 +18,7 @@
       "protocol": "A2A"
     }
   ],
-  "memories": [
-    {
-      "name": "code_explorerMemory",
-      "eventExpiryDuration": 30,
-      "strategies": []
-    }
-  ],
+  "memories": [],
   "credentials": [],
   "evaluators": [],
   "onlineEvalConfigs": [],

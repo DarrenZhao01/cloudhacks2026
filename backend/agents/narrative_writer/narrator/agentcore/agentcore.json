@@ -18,13 +18,7 @@
       "protocol": "A2A"
     }
   ],
-  "memories": [
-    {
-      "name": "narrativer_writerMemory",
-      "eventExpiryDuration": 30,
-      "strategies": []
-    }
-  ],
+  "memories": [],
   "credentials": [],
   "evaluators": [],
   "onlineEvalConfigs": [],

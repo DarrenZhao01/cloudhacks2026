@@ -4,15 +4,9 @@
       "resources": {
         "runtimes": {
           "narrativer_writer": {
-            "runtimeId": "narrator_narrativer_writer-NHanL04Og0",
-            "runtimeArn": "arn:aws:bedrock-agentcore:us-west-2:641748024059:runtime/narrator_narrativer_writer-NHanL04Og0",
-            "roleArn": "arn:aws:iam::641748024059:role/AgentCore-narrator-defaul-ApplicationAgentNarrative-E5u0vgNJZtUR"
-          }
-        },
-        "memories": {
-          "narrativer_writerMemory": {
-            "memoryId": "narrator_narrativer_writerMemory-Fb47hlB1Gq",
-            "memoryArn": "arn:aws:bedrock-agentcore:us-west-2:641748024059:memory/narrator_narrativer_writerMemory-Fb47hlB1Gq"
+            "runtimeId": "narrator_narrativer_writer-VPakW0EV31",
+            "runtimeArn": "arn:aws:bedrock-agentcore:us-west-2:641748024059:runtime/narrator_narrativer_writer-VPakW0EV31",
+            "roleArn": "arn:aws:iam::641748024059:role/AgentCore-narrator-defaul-ApplicationAgentNarrative-QU5vhDFN9K4b"
           }
         },
         "stackName": "AgentCore-narrator-default"

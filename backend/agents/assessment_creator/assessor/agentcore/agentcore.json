@@ -18,13 +18,7 @@
       "protocol": "A2A"
     }
   ],
-  "memories": [
-    {
-      "name": "assessment_creatorMemory",
-      "eventExpiryDuration": 30,
-      "strategies": []
-    }
-  ],
+  "memories": [],
   "credentials": [],
   "evaluators": [],
   "onlineEvalConfigs": [],

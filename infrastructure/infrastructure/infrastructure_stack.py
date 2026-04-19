@@ -38,9 +38,9 @@ class InfrastructureStack(Stack):
                     "AWS_REGION": self.region,
                     "LOCAL_MODE": "false",
                     # ARNs for remote agents will dynamically be passed via env vars/parameter store in production
-                    "CODE_EXPLORER_ARN": "arn:aws:bedrock-agentcore:us-west-2:123456789012:agent/code-explorer",
-                    "NARRATIVE_WRITER_ARN": "arn:aws:bedrock-agentcore:us-west-2:123456789012:agent/narrative-writer",
-                    "ASSESSMENT_CREATOR_ARN": "arn:aws:bedrock-agentcore:us-west-2:123456789012:agent/assessment-creator",
+                    "CODE_EXPLORER_ARN": "arn:aws:bedrock-agentcore:us-west-2:641748024059:runtime/coder_code_explorer-6VW2x1Hw4o",
+                    "NARRATIVE_WRITER_ARN": "arn:aws:bedrock-agentcore:us-west-2:641748024059:runtime/narrator_narrativer_writer-NHanL04Og0",
+                    "ASSESSMENT_CREATOR_ARN": "arn:aws:bedrock-agentcore:us-west-2:641748024059:runtime/assessor_assessment_creator-4yn4q04Tvu",
                 }
             ),
             public_load_balancer=True

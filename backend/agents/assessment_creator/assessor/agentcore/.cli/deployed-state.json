@@ -4,15 +4,9 @@
       "resources": {
         "runtimes": {
           "assessment_creator": {
-            "runtimeId": "assessor_assessment_creator-4yn4q04Tvu",
-            "runtimeArn": "arn:aws:bedrock-agentcore:us-west-2:641748024059:runtime/assessor_assessment_creator-4yn4q04Tvu",
-            "roleArn": "arn:aws:iam::641748024059:role/AgentCore-assessor-defaul-ApplicationAgentAssessmen-bkrFWZJrpJCb"
-          }
-        },
-        "memories": {
-          "assessment_creatorMemory": {
-            "memoryId": "assessor_assessment_creatorMemory-awpSGD9HDc",
-            "memoryArn": "arn:aws:bedrock-agentcore:us-west-2:641748024059:memory/assessor_assessment_creatorMemory-awpSGD9HDc"
+            "runtimeId": "assessor_assessment_creator-ppbclGEI2r",
+            "runtimeArn": "arn:aws:bedrock-agentcore:us-west-2:641748024059:runtime/assessor_assessment_creator-ppbclGEI2r",
+            "roleArn": "arn:aws:iam::641748024059:role/AgentCore-assessor-defaul-ApplicationAgentAssessmen-x0DEH1QBerGj"
           }
         },
         "stackName": "AgentCore-assessor-default"
