@@ -33,7 +33,20 @@ def _invoke_remote_agent(agent_arn: str, prompt: str, session_id: str = None) ->
     if session_id is None:
         session_id = f"session_{uuid.uuid4().hex}"
 
-    payload = json.dumps({"prompt": prompt}).encode()
+    req_id = uuid.uuid4().hex
+    a2a_payload = {
+        "jsonrpc": "2.0",
+        "id": req_id,
+        "method": "message/send",
+        "params": {
+            "message": {
+                "role": "user",
+                "parts": [{"kind": "text", "text": prompt}],
+                "messageId": f"msg_{req_id}"
+            }
+        }
+    }
+    payload = json.dumps(a2a_payload).encode("utf-8")
 
     response = agentcore_client.invoke_agent_runtime(
         agentRuntimeArn=agent_arn,
@@ -41,7 +54,15 @@ def _invoke_remote_agent(agent_arn: str, prompt: str, session_id: str = None) ->
         payload=payload,
     )
 
-    return response["response"].read().decode("utf-8")
+    result_json = json.loads(response["response"].read().decode("utf-8"))
+    
+    if "error" in result_json:
+        raise Exception(f"A2A Agent Runtime Error: {result_json['error']}")
+        
+    try:
+        return result_json["result"]["artifacts"][0]["parts"][0]["text"]
+    except (KeyError, IndexError):
+        return json.dumps(result_json)
 
 
 # ─── LOCAL MODE: fallback agents for development ──────────────────────────────
