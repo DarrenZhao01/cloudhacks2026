@@ -155,6 +155,17 @@ export const AUTH_CHAPTER_1 = {
     number: 2,
     title: "Database Schemas",
   },
+  quiz: {
+    question: "Before we move on, what handles the token refresh?",
+    options: [
+      "The API Gateway",
+      "The Auth Middleware",
+      "The Client Application",
+      "The Database"
+    ],
+    correctOptionIndex: 1,
+    successMessage: "Correct! The Auth Middleware intercepts the 401 and requests a new token."
+  },
   progress: 35,
 };
 
@@ -260,6 +271,17 @@ export const AUTH_CHAPTER_2 = {
     number: 3,
     title: "Session Management",
   },
+  quiz: {
+    question: "Which model handles uniquely identifying standard user accounts?",
+    options: [
+      "The Session Model",
+      "The API Gateway",
+      "The User Model",
+      "The Role Enum"
+    ],
+    correctOptionIndex: 2,
+    successMessage: "Spot on! The User model stores essential identity fields like email and the password hash."
+  },
   progress: 0,
 };
 
@@ -347,6 +369,17 @@ export const AUTH_CHAPTER_3 = {
   nextChapter: {
     number: 4,
     title: "Refresh Mechanics",
+  },
+  quiz: {
+    question: "What is the primary advantage of using Redis for session mapping over a standard RDBMS?",
+    options: [
+      "It supports one-to-many relations natively.",
+      "It encrypts passwords automatically.",
+      "O(1) fast deletion and time-to-live features.",
+      "It caches the entire database structure."
+    ],
+    correctOptionIndex: 2,
+    successMessage: "Exactly! Redis offers O(1) performance and built-in TTL for auto-expiration."
   },
   progress: 0,
 };

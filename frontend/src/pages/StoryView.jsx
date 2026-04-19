@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Link, useParams } from "react-router";
+import { Link, useParams, useNavigate } from "react-router";
 import {
   HiArrowLeft,
   HiOutlineBookmark,
@@ -7,16 +7,19 @@ import {
   HiArrowRight,
 } from "react-icons/hi";
 import CodeViewer from "../components/CodeViewer";
+import CheckpointModal from "../components/CheckpointModal";
 import { CHAPTERS_MAP } from "../data/chapters";
 import useProgress from "../hooks/useProgress";
 
 export default function StoryView() {
+  const navigate = useNavigate();
   const { journeyId, chapterIndex } = useParams();
   const chapterNum = Number(chapterIndex) || 1;
   const chapter = CHAPTERS_MAP[chapterNum] || CHAPTERS_MAP[1];
 
   const [activeSection, setActiveSection] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
+  const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
   const sectionRefs = useRef([]);
   const narrativeRef = useRef(null);
   const bottomRef = useRef(null);
@@ -27,6 +30,7 @@ export default function StoryView() {
   useEffect(() => {
     setActiveSection(0);
     setIsComplete(false);
+    setIsQuizModalOpen(false);
     sectionRefs.current = [];
     if (narrativeRef.current) narrativeRef.current.scrollTop = 0;
   }, [chapterNum]);
@@ -168,14 +172,20 @@ export default function StoryView() {
           {/* Floating next chapter CTA */}
           <div className="sticky bottom-8 left-0 right-0 px-6 md:px-12 flex justify-center">
             {chapter.nextChapter ? (
-              <Link
-                to={`/journey/${journeyId || "auth-flow"}/chapter/${chapterNum + 1}`}
+              <button
+                onClick={() => {
+                  if (chapter.quiz) {
+                    setIsQuizModalOpen(true);
+                  } else {
+                    navigate(`/journey/${journeyId || "auth-flow"}/chapter/${chapter.nextChapter.number}`);
+                  }
+                }}
                 className="bg-primary hover:bg-[#d5582a] text-white font-sans font-medium px-8 py-4 rounded-full shadow-[0_8px_24px_rgba(238,98,47,0.3)] transform transition-all hover:-translate-y-1 flex items-center gap-3 text-base no-underline"
               >
                 Continue to Chapter {chapter.nextChapter.number}:{" "}
                 {chapter.nextChapter.title}
                 <HiArrowRight className="text-lg" />
-              </Link>
+              </button>
             ) : (
               <Link
                 to={`/journey/${journeyId || "auth-flow"}`}
@@ -191,6 +201,21 @@ export default function StoryView() {
         {/* Right pane — code viewer (sticky) */}
         <CodeViewer fileName={chapter.codeFile} lines={chapter.codeLines} activeSection={activeSection} />
       </main>
+
+      {/* Render Checkpoint Modal if there is a quiz */}
+      {chapter.quiz && (
+        <CheckpointModal 
+          isOpen={isQuizModalOpen}
+          onClose={() => setIsQuizModalOpen(false)}
+          quiz={chapter.quiz}
+          onContinue={() => {
+            setIsQuizModalOpen(false);
+            if (chapter.nextChapter) {
+              navigate(`/journey/${journeyId || "auth-flow"}/chapter/${chapter.nextChapter.number}`);
+            }
+          }}
+        />
+      )}
     </div>
   );
 }
