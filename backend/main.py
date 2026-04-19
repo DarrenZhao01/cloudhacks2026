@@ -177,14 +177,27 @@ class ChatRequest(BaseModel):
     user_id: str = "anonymous"
 
 
+from fastapi.responses import StreamingResponse
+import asyncio
+
+async def _stream_orchestrate(prompt: str):
+    try:
+        # Assuming supervisor_agent.stream() is a generator yielding string deltas
+        for chunk in supervisor_agent.stream(prompt):
+            # SSE format: data: <content>\n\n
+            yield f"data: {chunk}\n\n"
+            await asyncio.sleep(0.01) # Small delay to yield context
+        yield "data: [DONE]\n\n"
+    except Exception as e:
+        yield f"data: [ERROR] {str(e)}\n\n"
+
 @app.post("/orchestrate")
 async def orchestrate(request: ChatRequest):
-    """Full documentation pipeline — supervisor orchestrates all worker agents."""
-    try:
-        result = str(supervisor_agent(request.prompt))
-        return {"status": "success", "output": result}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    """Full documentation pipeline — supervisor orchestrates all worker agents (Streaming)."""
+    return StreamingResponse(
+        _stream_orchestrate(request.prompt),
+        media_type="text/event-stream"
+    )
 
 
 @app.post("/explore")
