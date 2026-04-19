@@ -66,19 +66,18 @@ function colorize(text, type) {
   return parts.length ? parts : text;
 }
 
-export default function CodeViewer({ fileName, lines, activeSection }) {
+export default function CodeViewer({ fileName, code, activeLines = [] }) {
   const scrollContainerRef = useRef(null);
   const lineRefs = useRef([]);
 
   useEffect(() => {
-    // Find the first line that is active for the current section
-    const firstActiveIndex = lines.findIndex(line => line.activeFor?.includes(activeSection));
+    // Find the first active line to scroll into view
+    const firstActiveIndex = activeLines.length > 0 ? activeLines[0] : -1;
     
     if (firstActiveIndex !== -1 && lineRefs.current[firstActiveIndex] && scrollContainerRef.current) {
       const lineElement = lineRefs.current[firstActiveIndex];
       const container = scrollContainerRef.current;
       
-      // Calculate offset so the active code block is somewhat centered or slightly below top
       const offset = lineElement.offsetTop - container.offsetTop - 60;
       
       container.scrollTo({
@@ -86,7 +85,9 @@ export default function CodeViewer({ fileName, lines, activeSection }) {
         behavior: "smooth"
       });
     }
-  }, [activeSection, lines]);
+  }, [activeLines]);
+
+  const lines = code ? code.split('\n') : [];
 
   return (
     <div className="w-1/2 h-full bg-background-dark relative border-l border-slate-800 shadow-2xl flex flex-col hidden lg:flex">
@@ -111,14 +112,16 @@ export default function CodeViewer({ fileName, lines, activeSection }) {
       >
         <pre>
           <code>
-            {lines.map((line, i) => {
-              const inner = colorize(line.text, line.type);
-              const isActive = line.activeFor?.includes(activeSection);
+            {lines.map((text, i) => {
+              // Just pass 'code' type for basic coloring since we simplified
+              const inner = colorize(text, "code");
+              // Check if i+1 is in activeLines (since LLM will likely give 1-indexed lines)
+              const isActive = activeLines.includes(i + 1);
 
               return (
                 <div
                   key={i}
-                  ref={(el) => (lineRefs.current[i] = el)}
+                  ref={(el) => (lineRefs.current[i + 1] = el)}
                   className={`relative -mx-6 px-6 py-0.5 border-l-4 transition-colors duration-300 ${
                     isActive
                       ? "bg-primary/10 border-primary"

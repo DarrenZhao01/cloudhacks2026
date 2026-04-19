@@ -20,18 +20,22 @@ Return a JSON array of chapter objects. Each chapter follows this schema:
 ```json
 [
   {
-    "chapter_title": "A compelling title for this section",
-    "summary": "A one-sentence hook that draws the reader in",
-    "narrative": "The full narrative text (multiple paragraphs). Use markdown for formatting.",
-    "code_snippets": [
+    "chapterNumber": 1,
+    "chapterTitle": "A compelling title for the sidebar",
+    "storyTitle": "A compelling title for the main content area",
+    "storyIntro": "A one or two sentence hook that draws the reader in",
+    "codeFile": "src/auth/login.py",
+    "code": "def login(user, password):\n    # The full raw code snippet as a single multiline string\n    pass",
+    "sections": [
       {
-        "file_path": "src/auth/login.py",
-        "language": "python",
-        "code": "def login(user, password): ...",
-        "explanation": "Why this code matters in the story"
+         "id": "section-1",
+         "heading": "1. Connecting to the DB",
+         "paragraphs": [
+             { "text": "This handles the login.", "codeRef": "login()", "codeRefHighlight": true, "suffix": "function." }
+         ],
+         "highlightRanges": [1, 2]
       }
-    ],
-    "key_concepts": ["concept_1", "concept_2"]
+    ]
   }
 ]
 ```

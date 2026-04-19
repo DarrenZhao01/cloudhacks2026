@@ -121,8 +121,9 @@ def invoke_assessment_creator(prompt: str) -> str:
 
 
 # ─── Supervisor Agent ─────────────────────────────────────────────────────────
-SUPERVISOR_PROMPT = """\
-You are the Documentation Supervisor. You orchestrate three specialist agents to produce interactive, story-driven code documentation.
+def get_supervisor_prompt(owner: str, repo: str) -> str:
+    return f"""\
+You are the Documentation Supervisor. You orchestrate three specialist agents to produce interactive, story-driven code documentation for the GitHub repository: {owner}/{repo}.
 
 ## Your tools
 | Tool                      | What it does                                                      |
@@ -132,33 +133,85 @@ You are the Documentation Supervisor. You orchestrate three specialist agents to
 | invoke_assessment_creator | Generates a knowledge-check quiz question for a chapter           |
 
 ## Workflow
-When the user requests documentation (e.g. "Document the authentication flow in owner/repo"):
+When the user requests documentation for the repository:
 
-1. **Plan** — Identify which files or features need exploring.
-2. **Explore** — Call `invoke_code_explorer` with the owner, repo, and file paths. Collect all relevant code.
-3. **Narrate** — Pass the collected code and context to `invoke_narrative_writer`. Ask it to produce one or more chapters.
-4. **Assess** — For each chapter, pass the narrative + code to `invoke_assessment_creator` to generate a quiz question.
-5. **Assemble** — Combine the chapters and quizzes into a single JSON response.
+1. **Explore** — Call `invoke_code_explorer` passing owner="{owner}" and repo="{repo}" to get the root directory tree to understand the codebase layout.
+2. **Plan** — Decide on 1 "Story" category (e.g. "Architecture", "Backend", "Frontend"). Inside that story, create 1 "Journey".
+3. **Draft Chapters** — Identify 2 to 3 core files. For each file:
+    - Get the file contents using `invoke_code_explorer` (owner="{owner}", repo="{repo}").
+    - Pass the file contents to `invoke_narrative_writer` to write the narrative metadata and sections (with `highlightRanges`). It will return an array of chapters.
+    - Pass the narrative to `invoke_assessment_creator` to generate a checkpoint quiz.
+4. **Assemble** — Combine the generated chapters into a SINGLE complete JSON response that maps exactly to the frontend state.
 
-## Rules
-- Always start by fetching the repository tree so you understand the codebase layout.
-- Pass concrete code snippets to the narrative and assessment agents — do not ask them to fetch code themselves.
-- If an agent returns an error, retry once, then report the issue to the user.
-- Keep your own output concise; the detailed content lives in the agent responses.
+## Output Format
+Your final output MUST be a JSON object nested exactly like this. DO NOT wrap it in markdown blockquotes, return raw JSON:
+
+{{
+  "stories": [
+    {{
+      "id": "story-1",
+      "title": "Welcome to the Codebase",
+      "description": "A high-level overview of the repository components",
+      "category": "Architecture",
+      "image": "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop",
+      "estimatedTime": "15 min",
+      "journeys": ["journey-1"]
+    }}
+  ],
+  "journeys": {{
+    "journey-1": {{
+      "id": "journey-1",
+      "title": "Core Architecture",
+      "description": "Learn the primary structure of the application.",
+      "category": "Architecture",
+      "author": {{ "name": "AI Orchestrator", "avatar": "https://ui-avatars.com/api/?name=AI&background=0D8ABC&color=fff" }},
+      "estimatedTime": "15 min",
+      "chapters": [
+        {{ "id": "chapter-1", "title": "Main entrypoint", "description": "The root of the app." }},
+        {{ "id": "chapter-2", "title": "Routing", "description": "How the app routes." }}
+      ]
+    }}
+  }},
+  "chapters": {{
+    "journey-1-1": {{
+       "chapterNumber": 1,
+       "chapterTitle": "Main entrypoint",
+       "storyTitle": "Starting the application",
+       "storyIntro": "This is where it all begins.",
+       "codeFile": "src/index.js",
+       "code": "import App from './App';\\n\\nApp.start();",
+       "sections": [
+         {{
+           "id": "section-1",
+           "heading": "Imports",
+           "paragraphs": [
+              {{ "text": "We import the app", "codeRef": "App", "codeRefHighlight": true }}
+           ],
+           "highlightRanges": [1]
+         }}
+       ],
+       "quiz": {{
+         "question": "What is imported?",
+         "options": ["App", "Router", "Auth"],
+         "correctOptionIndex": 0,
+         "successMessage": "Correct!"
+       }},
+       "nextChapter": {{ "number": 2, "title": "Routing" }}
+    }}
+  }}
+}}
+
+## Rule Reminders
+- You MUST generate the explicit JSON keys: `stories`, `journeys`, and `chapters`.
+- The keys in the `chapters` object MUST be formatted as `{{journey_id}}-{{chapterIndex}}`, for example `journey-1-1`.
+- The `highlightRanges` should be an array of integers representing 1-indexed line numbers of the `code` string.
+- Output NOTHING BUT VALID JSON.
 """
 
 supervisor_model = BedrockModel(
     model_id="us.anthropic.claude-sonnet-4-6",
     region_name=AWS_REGION,
 )
-
-supervisor_agent = Agent(
-    name="supervisor",
-    model=supervisor_model,
-    system_prompt=SUPERVISOR_PROMPT,
-    tools=[invoke_code_explorer, invoke_narrative_writer, invoke_assessment_creator],
-)
-
 
 # ─── FastAPI App ──────────────────────────────────────────────────────────────
 app = FastAPI(title="Documentation Supervisor")
@@ -177,27 +230,63 @@ class ChatRequest(BaseModel):
     user_id: str = "anonymous"
 
 
-from fastapi.responses import StreamingResponse
-import asyncio
-
-async def _stream_orchestrate(prompt: str):
-    try:
-        # Assuming supervisor_agent.stream() is a generator yielding string deltas
-        for chunk in supervisor_agent.stream(prompt):
-            # SSE format: data: <content>\n\n
-            yield f"data: {chunk}\n\n"
-            await asyncio.sleep(0.01) # Small delay to yield context
-        yield "data: [DONE]\n\n"
-    except Exception as e:
-        yield f"data: [ERROR] {str(e)}\n\n"
+import re
 
 @app.post("/orchestrate")
 async def orchestrate(request: ChatRequest):
-    """Full documentation pipeline — supervisor orchestrates all worker agents (Streaming)."""
-    return StreamingResponse(
-        _stream_orchestrate(request.prompt),
-        media_type="text/event-stream"
-    )
+    """Full documentation pipeline — supervisor orchestrates all worker agents."""
+    try:
+        url = request.prompt.strip().rstrip('/')
+        parts = url.split('/')
+        if len(parts) >= 2:
+            repo = parts[-1]
+            owner = parts[-2]
+        else:
+            owner = "unknown"
+            repo = "unknown"
+            
+        dynamic_prompt = get_supervisor_prompt(owner, repo)
+        
+        supervisor_agent = Agent(
+            name="supervisor",
+            model=supervisor_model,
+            system_prompt=dynamic_prompt,
+            tools=[invoke_code_explorer, invoke_narrative_writer, invoke_assessment_creator],
+        )
+
+        raw_response = supervisor_agent(f"Generate curriculum for repository {owner}/{repo}.")
+        response_text = str(raw_response)
+        
+        # Strip potential markdown fences to parse JSON
+        json_match = re.search(r'\{(?:[^{}]|(?R))*\}', response_text.replace('\n', ' '), re.IGNORECASE)
+        # Actually a simpler regex or manual strip:
+        cleaned_text = response_text.strip()
+        if cleaned_text.startswith("```json"):
+            cleaned_text = cleaned_text[7:]
+        if cleaned_text.startswith("```"):
+            cleaned_text = cleaned_text[3:]
+        if cleaned_text.endswith("```"):
+            cleaned_text = cleaned_text[:-3]
+        
+        try:
+            data = json.loads(cleaned_text.strip())
+        except json.JSONDecodeError:
+            # Fallback regex extraction if there's conversational garbage
+            match = re.search(r'(\{.*\})', response_text, re.DOTALL)
+            if match:
+                data = json.loads(match.group(1))
+            else:
+                raise ValueError("Could not parse JSON from LLM output")
+            
+        return {
+            "status": "success",
+            "stories": data.get("stories", []),
+            "journeys": data.get("journeys", {}),
+            "chapters": data.get("chapters", {})
+        }
+    except Exception as e:
+        print("Error Orchestrating: ", str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/explore")

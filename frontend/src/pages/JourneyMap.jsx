@@ -9,10 +9,12 @@ import { HiListBullet } from "react-icons/hi2";
 import ChapterCard from "../components/ChapterCard";
 import { AUTH_JOURNEY } from "../data/journeys";
 import useProgress from "../hooks/useProgress";
+import { useJourneyData } from "../context/JourneyContext";
 
 export default function JourneyMap() {
   const { journeyId } = useParams();
-  const journey = AUTH_JOURNEY;
+  const { dynamicJourneys } = useJourneyData();
+  const journey = dynamicJourneys[journeyId] || AUTH_JOURNEY;
   const { isChapterComplete } = useProgress(journeyId || "auth-flow");
 
   /* Derive live chapter statuses from stored progress */

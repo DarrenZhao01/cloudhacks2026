@@ -10,12 +10,16 @@ import CodeViewer from "../components/CodeViewer";
 import CheckpointModal from "../components/CheckpointModal";
 import { CHAPTERS_MAP } from "../data/chapters";
 import useProgress from "../hooks/useProgress";
+import { useJourneyData } from "../context/JourneyContext";
 
 export default function StoryView() {
   const navigate = useNavigate();
   const { journeyId, chapterIndex } = useParams();
   const chapterNum = Number(chapterIndex) || 1;
-  const chapter = CHAPTERS_MAP[chapterNum] || CHAPTERS_MAP[1];
+  const { dynamicChapters } = useJourneyData();
+  
+  const fallbackChapter = CHAPTERS_MAP[chapterNum] || CHAPTERS_MAP[1];
+  const chapter = (dynamicChapters && dynamicChapters[`${journeyId}-${chapterNum}`]) || fallbackChapter;
 
   const [activeSection, setActiveSection] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
@@ -199,7 +203,11 @@ export default function StoryView() {
         </div>
 
         {/* Right pane — code viewer (sticky) */}
-        <CodeViewer fileName={chapter.codeFile} lines={chapter.codeLines} activeSection={activeSection} />
+        <CodeViewer 
+          fileName={chapter.codeFile} 
+          code={chapter.code} 
+          activeLines={chapter.sections[activeSection]?.highlightRanges || []} 
+        />
       </main>
 
       {/* Render Checkpoint Modal if there is a quiz */}

@@ -17,14 +17,11 @@ You are an Assessment Creator. You generate a single knowledge-check question fo
 Return ONLY a valid JSON object — no markdown fences, no extra text:
 
 {
-  "checkpoint": {
+  "quiz": {
     "question": "A friendly, conversational question (e.g. 'Before we move on, which function validates the user token?')",
     "options": ["Option A", "Option B", "Option C", "Option D"],
-    "correct_index": 0,
-    "feedback": {
-      "success": "A brief, encouraging confirmation (1 sentence)",
-      "correction": "A gentle explanation of the right answer (1-2 sentences)"
-    }
+    "correctOptionIndex": 0,
+    "successMessage": "A brief, encouraging confirmation or explanation of the right answer (1-2 sentences)"
   }
 }
 
