@@ -1,3 +1,27 @@
 {
-  "targets": {}
+  "targets": {
+    "default": {
+      "resources": {
+        "runtimes": {
+          "GitHubAgent": {
+            "runtimeId": "GitHubAgent_GitHubAgent-f7lcw4ERKJ",
+            "runtimeArn": "arn:aws:bedrock-agentcore:us-west-2:954361572439:runtime/GitHubAgent_GitHubAgent-f7lcw4ERKJ",
+            "roleArn": "arn:aws:iam::954361572439:role/AgentCore-GitHubAgent-def-ApplicationAgentGitHubAge-ivhBHEakwqWf"
+          },
+          "MyAgent": {
+            "runtimeId": "GitHubAgent_MyAgent-V3tMJE3Ki0",
+            "runtimeArn": "arn:aws:bedrock-agentcore:us-west-2:954361572439:runtime/GitHubAgent_MyAgent-V3tMJE3Ki0",
+            "roleArn": "arn:aws:iam::954361572439:role/AgentCore-GitHubAgent-def-ApplicationAgentMyAgentRu-8FIaEqI3vCNV"
+          }
+        },
+        "memories": {
+          "MyAgentMemory": {
+            "memoryId": "GitHubAgent_MyAgentMemory-e6sr0YHfnx",
+            "memoryArn": "arn:aws:bedrock-agentcore:us-west-2:954361572439:memory/GitHubAgent_MyAgentMemory-e6sr0YHfnx"
+          }
+        },
+        "stackName": "AgentCore-GitHubAgent-default"
+      }
+    }
+  }
 }
