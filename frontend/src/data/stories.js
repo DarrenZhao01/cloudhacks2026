@@ -5,6 +5,7 @@ export const STORIES = [
     id: 1,
     category: "Architecture",
     title: "Core Concept: The Auth Flow",
+    link: "/journey/auth-flow",
     description:
       "Understand how JWT tokens are generated, validated, and refreshed across our microservices.",
     readTime: "12 min read",

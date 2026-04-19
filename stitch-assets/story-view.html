@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Story View - CodeJourney</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;family=Fira+Code:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "primary": "#ee622f",
+          "background-light": "#f8f6f6",
+          "background-dark": "#221510",
+        },
+        fontFamily: {
+          "display": ["Newsreader", "serif"],
+          "mono": ["Fira Code", "monospace"]
+        },
+        borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+      },
+    },
+  }
+</script>
+<style>
+  /* Custom scrollbar for left pane */
+  .narrative-scroll::-webkit-scrollbar {
+    width: 6px;
+  }
+  .narrative-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .narrative-scroll::-webkit-scrollbar-thumb {
+    background-color: #d1d5db;
+    border-radius: 20px;
+  }
+  
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+</style>
+</head>
+<body class="bg-background-light text-slate-800 font-display min-h-screen flex flex-col overflow-hidden">
+<!-- Progress Bar (Sticky Top) -->
+<div class="fixed top-0 left-0 w-full h-1 bg-slate-200 z-50">
+<div class="h-full bg-primary w-[35%] rounded-r-full transition-all duration-300"></div>
+</div>
+<!-- Minimal Header for Focused View (Back-to-Main Exception) -->
+<header class="fixed top-1 left-0 w-1/2 flex items-center justify-between px-10 py-4 bg-background-light/95 backdrop-blur-sm z-40 border-b border-slate-200">
+<div class="flex items-center gap-4">
+<a class="p-2 hover:bg-slate-100 rounded-full transition-colors group" href="#">
+<span class="material-symbols-outlined text-slate-500 group-hover:text-primary transition-colors">arrow_back</span>
+</a>
+<div>
+<p class="text-sm text-slate-500 font-sans tracking-wide uppercase font-medium">Chapter 1</p>
+<h1 class="text-xl font-bold text-slate-900">The Auth Flow</h1>
+</div>
+</div>
+<button class="flex items-center gap-2 text-sm font-sans text-slate-600 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">bookmark_border</span>
+      Save Progress
+    </button>
+</header>
+<!-- Main Split Layout -->
+<main class="flex h-screen pt-[76px] w-full max-w-[1920px] mx-auto">
+<!-- Left Pane: Narrative (Scrollable) -->
+<div class="w-1/2 h-full overflow-y-auto narrative-scroll relative pb-32">
+<div class="max-w-2xl mx-auto px-12 py-16">
+<!-- Story Header -->
+<div class="mb-16">
+<h2 class="text-5xl font-black leading-tight tracking-[-0.02em] text-slate-900 mb-6">Securing the Gates: How We Handle Authentication</h2>
+<p class="text-xl text-slate-600 leading-relaxed">Before any user can access their sensitive data, they must pass through our authentication gauntlet. It's a multi-step process designed for maximum security while minimizing friction.</p>
+</div>
+<!-- Section 1 -->
+<div class="prose prose-lg prose-slate prose-headings:font-display prose-p:leading-[1.8] max-w-none mb-24 opacity-100 transition-opacity duration-500" id="section-1">
+<h3 class="text-2xl font-bold text-slate-800 mb-4">1. The Initial Handshake</h3>
+<p class="mb-6">The journey begins when a user submits their credentials. Our client application sends a standard POST request to the <code class="font-mono text-sm bg-slate-100 text-primary px-2 py-1 rounded-md border border-slate-200 cursor-pointer hover:bg-primary/10 transition-colors">/api/v1/auth/login</code> endpoint.</p>
+<p class="mb-6">This request lands directly in the <code class="font-mono text-sm bg-slate-100 text-slate-700 px-2 py-1 rounded-md border border-slate-200">AuthController</code>. The very first thing we do is validate the incoming payload structure to prevent malformed requests from hitting the database.</p>
+</div>
+<!-- Section 2 -->
+<div class="prose prose-lg prose-slate prose-headings:font-display prose-p:leading-[1.8] max-w-none mb-24 opacity-40 hover:opacity-100 transition-opacity duration-500" id="section-2">
+<h3 class="text-2xl font-bold text-slate-800 mb-4">2. Verifying Identity</h3>
+<p class="mb-6">Once the payload is validated, we attempt to find the user in our PostgreSQL database using Prisma. We search by the normalized email address.</p>
+<p class="mb-6">If the user exists, we use bcrypt to compare the provided password against the hashed password stored in the database. Notice the use of <code class="font-mono text-sm bg-slate-100 text-primary px-2 py-1 rounded-md border border-slate-200 cursor-pointer hover:bg-primary/10 transition-colors">bcrypt.compare()</code> – this is a critical security step that happens asynchronously to avoid blocking the event loop.</p>
+</div>
+<!-- Section 3 -->
+<div class="prose prose-lg prose-slate prose-headings:font-display prose-p:leading-[1.8] max-w-none mb-24 opacity-40 hover:opacity-100 transition-opacity duration-500" id="section-3">
+<h3 class="text-2xl font-bold text-slate-800 mb-4">3. Generating the Tokens</h3>
+<p class="mb-6">Success! The credentials are valid. Now we need to issue the keys to the kingdom. We use a dual-token strategy: a short-lived Access Token and a long-lived Refresh Token.</p>
+<p class="mb-6">The <code class="font-mono text-sm bg-slate-100 text-primary px-2 py-1 rounded-md border border-slate-200 cursor-pointer hover:bg-primary/10 transition-colors">generateTokens</code> utility creates these JWTs. The access token contains minimal claims (user ID and role) and expires in 15 minutes. The refresh token is securely stored in an HTTP-only cookie.</p>
+</div>
+<!-- End of Chapter Content -->
+<div class="mt-32 pt-16 border-t border-slate-200 text-center">
+<div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+<span class="material-symbols-outlined text-3xl">check</span>
+</div>
+<h3 class="text-2xl font-bold mb-2">Chapter Complete</h3>
+<p class="text-slate-600 mb-8">You've successfully traced the authentication flow.</p>
+</div>
+</div>
+<!-- Floating Next Chapter CTA -->
+<div class="sticky bottom-8 left-0 right-0 px-12 flex justify-center">
+<button class="bg-primary hover:bg-[#d5582a] text-white font-sans font-medium px-8 py-4 rounded-full shadow-[0_8px_24px_rgba(238,98,47,0.3)] transform transition-all hover:-translate-y-1 flex items-center gap-3">
+          Continue to Chapter 2: Database Schemas
+          <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Right Pane: Code Viewer (Sticky) -->
+<div class="w-1/2 h-full bg-background-dark relative border-l border-slate-800 shadow-2xl flex flex-col">
+<!-- MacOS Style Window Header -->
+<div class="h-12 bg-[#1a100c] border-b border-slate-800 flex items-center px-4 justify-between select-none">
+<div class="flex gap-2">
+<div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+<div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+<div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+</div>
+<div class="flex items-center gap-2 text-slate-400 font-mono text-xs bg-[#2a1b15] px-3 py-1 rounded-md border border-slate-700/50">
+<span class="material-symbols-outlined text-[14px]">description</span>
+          auth.controller.ts
+        </div>
+<div class="w-16"></div> <!-- Spacer for centering -->
+</div>
+<!-- Code Content -->
+<div class="flex-1 overflow-y-auto p-6 font-mono text-sm leading-relaxed text-slate-300">
+<pre><code class="language-typescript">
+<span class="text-purple-400">import</span> { Request, Response } <span class="text-purple-400">from</span> <span class="text-green-300">'express'</span>;
+<span class="text-purple-400">import</span> bcrypt <span class="text-purple-400">from</span> <span class="text-green-300">'bcryptjs'</span>;
+<span class="text-purple-400">import</span> prisma <span class="text-purple-400">from</span> <span class="text-green-300">'../lib/prisma'</span>;
+<span class="text-purple-400">import</span> { generateTokens } <span class="text-purple-400">from</span> <span class="text-green-300">'../utils/jwt'</span>;
+
+<span class="text-purple-400">export const</span> login = <span class="text-blue-400">async</span> (req: Request, res: Response) =&gt; {
+  <span class="text-slate-500 italic">// 1. Validate incoming payload</span>
+  <span class="text-purple-400">const</span> { email, password } = req.body;
+  
+  <span class="text-blue-400">if</span> (!email || !password) {
+    <span class="text-purple-400">return</span> res.status(<span class="text-orange-400">400</span>).json({ error: <span class="text-green-300">'Missing credentials'</span> });
+  }
+
+  <span class="text-blue-400">try</span> {
+    <span class="text-slate-500 italic">// 2. Find user in database</span>
+    <span class="text-purple-400">const</span> user = <span class="text-blue-400">await</span> prisma.user.findUnique({
+      where: { email: email.toLowerCase() }
+    });
+
+    <span class="text-blue-400">if</span> (!user) {
+      <span class="text-purple-400">return</span> res.status(<span class="text-orange-400">401</span>).json({ error: <span class="text-green-300">'Invalid credentials'</span> });
+    }
+
+<div class="relative -mx-6 px-6 py-2 bg-primary/10 border-l-4 border-primary transition-all duration-300 group">
+    <span class="text-slate-500 italic">// 3. Verify password hash</span>
+    <span class="text-purple-400">const</span> isValidPassword = <span class="text-blue-400">await</span> bcrypt.compare(password, user.passwordHash);
+    
+    <span class="text-blue-400">if</span> (!isValidPassword) {
+      <span class="text-purple-400">return</span> res.status(<span class="text-orange-400">401</span>).json({ error: <span class="text-green-300">'Invalid credentials'</span> });
+    }
+</div>
+
+    <span class="text-slate-500 italic">// 4. Generate JWT tokens</span>
+    <span class="text-purple-400">const</span> { accessToken, refreshToken } = generateTokens(user.id, user.role);
+
+    <span class="text-slate-500 italic">// 5. Set HTTP-only cookie for refresh token</span>
+    res.cookie(<span class="text-green-300">'refreshToken'</span>, refreshToken, {
+      httpOnly: <span class="text-orange-400">true</span>,
+      secure: process.env.NODE_ENV === <span class="text-green-300">'production'</span>,
+      sameSite: <span class="text-green-300">'strict'</span>,
+      maxAge: <span class="text-orange-400">7</span> * <span class="text-orange-400">24</span> * <span class="text-orange-400">60</span> * <span class="text-orange-400">60</span> * <span class="text-orange-400">1000</span> <span class="text-slate-500 italic">// 7 days</span>
+    });
+
+    <span class="text-slate-500 italic">// 6. Return access token to client</span>
+    <span class="text-purple-400">return</span> res.status(<span class="text-orange-400">200</span>).json({
+      message: <span class="text-green-300">'Login successful'</span>,
+      accessToken
+    });
+
+  } <span class="text-blue-400">catch</span> (error) {
+    console.error(<span class="text-green-300">'Login error:'</span>, error);
+    <span class="text-purple-400">return</span> res.status(<span class="text-orange-400">500</span>).json({ error: <span class="text-green-300">'Internal server error'</span> });
+  }
+};
+        </code></pre>
+</div>
+<!-- Mini Map / Quick Jump (Optional feature for code pane) -->
+<div class="absolute right-4 top-16 bottom-16 w-2 bg-slate-800/50 rounded-full hidden lg:block overflow-hidden">
+<div class="absolute top-[35%] w-full h-12 bg-primary/40 rounded-full"></div>
+</div>
+</div>
+</main>
+</body></html>

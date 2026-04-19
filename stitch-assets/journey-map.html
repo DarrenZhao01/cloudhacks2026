@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Journey Map - Codebase Tours</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,700;6..72,800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#ee622f",
+            "background-light": "#f8f6f6",
+            "background-dark": "#221510",
+            "surface": "#ffffff",
+            "text-main": "#2C2621",
+            "text-muted": "#8C7C70",
+            "accent-green": "#5A8B73"
+          },
+          fontFamily: {
+            "display": ["Newsreader", "serif"],
+            "sans": ["system-ui", "sans-serif"]
+          },
+          borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+          boxShadow: {
+            "soft": "0 8px 24px rgba(44, 38, 33, 0.05)"
+          }
+        },
+      },
+    }
+  </script>
+</head>
+<body class="bg-background-light text-text-main font-sans antialiased overflow-hidden h-screen flex flex-col">
+<!-- Minimal Header for Focused View (Back-to-Main Exception) -->
+<header class="flex items-center justify-between px-8 py-6 bg-background-light border-b border-gray-200 z-10 flex-shrink-0">
+<a class="flex items-center gap-2 text-text-main hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined text-xl group-hover:-translate-x-1 transition-transform">arrow_back</span>
+<span class="text-sm font-medium tracking-wide uppercase">Back to Library</span>
+</a>
+</header>
+<!-- Main Split Layout -->
+<main class="flex flex-1 overflow-hidden">
+<!-- Left Pane: Story Meta (Fixed) -->
+<aside class="hidden lg:flex w-2/5 p-16 flex-col justify-center border-r border-gray-200 bg-background-light z-0">
+<div class="max-w-md mx-auto">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-100 text-primary text-xs font-bold uppercase tracking-wider mb-6">
+<span class="material-symbols-outlined text-[16px]">map</span>
+          Architecture Tour
+        </div>
+<h1 class="font-display text-5xl font-extrabold leading-tight tracking-tight mb-6 text-text-main">
+          The Authentication Flow
+        </h1>
+<p class="font-display text-xl text-text-muted leading-relaxed mb-10">
+          Understand how user requests are verified, tokens are minted, and sessions are maintained across our microservices. A foundational journey for all backend engineers.
+        </p>
+<div class="flex items-center gap-4">
+<div class="h-12 w-12 rounded-full bg-cover bg-center shadow-sm" data-alt="headshot of a smiling female engineer with dark hair wearing a neutral sweater against a light background" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDc64Y5zP7OlUzesm3aVxK2PKhB6VKsK197GLwP08Rv8qH_Pwp56McCwe_yK0onN0R4IHh9-RJ_Mtzve6fXaGutWcgYKmlM6rAXnPFk_95w1lPoVIHBQ7Q18AE55e7HfLCF8bk-TqhQRg3ex2IJlaAV7z6jCZupt_pAfMk07GQwhgEr_2YCQ4jlYB0BT1K3tqeM40MTzEZ0jDHBB9vgMQxIibcRqTTwI6Q_KOs42TanZ0rypNg2zzuMhGjQFzNM6-v6DtESKMFZT98');">
+</div>
+<div>
+<p class="text-base font-semibold text-text-main">Jane Doe</p>
+<p class="text-sm text-text-muted flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">schedule</span>
+              45 min estimated journey
+            </p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Right Pane: Timeline (Scrollable) -->
+<section class="w-full lg:w-3/5 overflow-y-auto p-8 lg:p-16 bg-surface relative">
+<div class="max-w-2xl mx-auto">
+<h2 class="text-sm font-bold uppercase tracking-widest text-text-muted mb-12 flex items-center gap-2">
+<span class="material-symbols-outlined">format_list_numbered</span>
+          Journey Chapters
+        </h2>
+<!-- Timeline Container -->
+<div class="relative">
+<!-- Continuous Vertical Line -->
+<div class="absolute left-4 top-2 bottom-8 w-0.5 bg-gray-200 -ml-px"></div>
+<!-- Chapter 1: Completed -->
+<div class="relative flex gap-8 mb-12 group">
+<div class="flex-shrink-0 relative z-10">
+<div class="w-8 h-8 rounded-full bg-accent-green text-white flex items-center justify-center ring-4 ring-surface shadow-sm">
+<span class="material-symbols-outlined text-[18px]">check</span>
+</div>
+</div>
+<div class="flex-1 bg-surface border border-gray-100 rounded-xl p-6 shadow-soft opacity-75 transition-opacity hover:opacity-100">
+<span class="text-xs font-bold text-accent-green uppercase tracking-wider mb-2 block">Completed</span>
+<h3 class="font-display text-2xl font-bold text-text-main mb-2">The Entry Point</h3>
+<p class="text-text-muted text-sm leading-relaxed">Where the request first hits the API gateway and initial headers are evaluated before reaching the auth service.</p>
+<button class="mt-4 text-sm font-medium text-text-main hover:text-accent-green flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[18px]">replay</span>
+                Review Chapter
+              </button>
+</div>
+</div>
+<!-- Chapter 2: Current (Active) -->
+<div class="relative flex gap-8 mb-12">
+<div class="flex-shrink-0 relative z-10">
+<div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center ring-4 ring-surface shadow-md">
+<span class="material-symbols-outlined text-[18px]">play_arrow</span>
+</div>
+<!-- Pulse effect for active node -->
+<div class="absolute inset-0 rounded-full bg-primary opacity-20 animate-ping"></div>
+</div>
+<div class="flex-1 bg-surface border-2 border-primary/20 rounded-xl p-6 shadow-lg transform transition-transform hover:-translate-y-1">
+<span class="text-xs font-bold text-primary uppercase tracking-wider mb-2 block">Up Next</span>
+<h3 class="font-display text-2xl font-bold text-text-main mb-2">Token Minting</h3>
+<p class="text-text-muted text-sm leading-relaxed mb-6">Deep dive into the JWT generation, understanding the payload structure, and the cryptographic signing process.</p>
+<a class="inline-flex items-center justify-center px-6 py-3 bg-primary hover:bg-orange-600 text-white text-sm font-medium rounded-full transition-colors shadow-sm w-full sm:w-auto gap-2" href="#">
+                Start Chapter
+                <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- Chapter 3: Locked -->
+<div class="relative flex gap-8 mb-12 opacity-50 cursor-not-allowed group">
+<div class="flex-shrink-0 relative z-10">
+<div class="w-8 h-8 rounded-full bg-gray-100 border-2 border-gray-300 text-gray-400 flex items-center justify-center ring-4 ring-surface">
+<span class="material-symbols-outlined text-[18px]">lock</span>
+</div>
+</div>
+<div class="flex-1 border border-gray-200 rounded-xl p-6 bg-gray-50/50 relative overflow-hidden">
+<div class="absolute inset-0 bg-white/40 backdrop-blur-[1px] z-10"></div>
+<div class="relative z-0">
+<span class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Locked</span>
+<h3 class="font-display text-2xl font-bold text-gray-700 mb-2">Session Management</h3>
+<p class="text-gray-500 text-sm leading-relaxed">How Redis caches the user state, handles concurrent logins, and manages token revocation.</p>
+</div>
+<!-- Locked Tooltip (Hover) -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 bg-text-main text-white text-xs px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-xl pointer-events-none">
+                Complete previous chapter to unlock
+              </div>
+</div>
+</div>
+<!-- Chapter 4: Locked -->
+<div class="relative flex gap-8 opacity-50 cursor-not-allowed group">
+<div class="flex-shrink-0 relative z-10">
+<div class="w-8 h-8 rounded-full bg-gray-100 border-2 border-gray-300 text-gray-400 flex items-center justify-center ring-4 ring-surface">
+<span class="material-symbols-outlined text-[18px]">lock</span>
+</div>
+</div>
+<div class="flex-1 border border-gray-200 rounded-xl p-6 bg-gray-50/50 relative overflow-hidden">
+<div class="absolute inset-0 bg-white/40 backdrop-blur-[1px] z-10"></div>
+<div class="relative z-0">
+<span class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Locked</span>
+<h3 class="font-display text-2xl font-bold text-gray-700 mb-2">Refresh Mechanics</h3>
+<p class="text-gray-500 text-sm leading-relaxed">The quiet background process of keeping a user logged in without interrupting their experience.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+</body></html>

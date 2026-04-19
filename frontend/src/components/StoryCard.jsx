@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router";
 import {
   HiOutlineClock,
   HiCheckCircle,
@@ -52,8 +53,8 @@ export default function StoryCard({ story }) {
   const isCompleted = story.status === "completed";
 
   return (
-    <a
-      href="#"
+    <Link
+      to={story.link || "#"}
       className={[
         "group flex flex-col bg-surface rounded-xl p-6",
         "shadow-soft hover:shadow-soft-hover",
@@ -96,6 +97,6 @@ export default function StoryCard({ story }) {
 
       {/* Progress */}
       <ProgressBar status={story.status} progress={story.progress} />
-    </a>
+    </Link>
   );
 }
