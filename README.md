@@ -1,5 +1,4 @@
-# AgentCore Documentation Curriculum Generator
-
+# Onboard
 A truly distributed, multi-agent platform for dynamically converting complex software repositories into interactive, narrative-driven documentation and assessments.
 
 ## Architecture
