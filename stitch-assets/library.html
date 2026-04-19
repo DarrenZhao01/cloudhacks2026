@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Narrative Journey - Library</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ee622f",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#221510",
+                        "surface": "#f0ebe1",
+                        "text-main": "#2c2621",
+                        "muted": "#8c7c70"
+                    },
+                    fontFamily: {
+                        "display": ["Newsreader", "serif"],
+                        "sans": ["Newsreader", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    boxShadow: {
+                        'soft': '0 8px 24px rgba(44, 38, 33, 0.05)',
+                        'soft-hover': '0 12px 32px rgba(44, 38, 33, 0.08)'
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Newsreader', serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="bg-background-light text-text-main min-h-screen antialiased selection:bg-primary/20 selection:text-primary">
+<!-- TopNavBar Shared Component -->
+<div class="relative flex h-auto w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<div class="px-4 md:px-10 lg:px-40 flex flex-1 justify-center py-5">
+<div class="layout-content-container flex flex-col w-full max-w-[1200px] flex-1">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-muted/20 pb-4 mb-8">
+<div class="flex items-center gap-4 text-text-main">
+<div class="size-6 text-primary">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M24 4C25.7818 14.2173 33.7827 22.2182 44 24C33.7827 25.7818 25.7818 33.7827 24 44C22.2182 33.7827 14.2173 25.7818 4 24C14.2173 22.2182 22.2182 14.2173 24 4Z" fill="currentColor"></path>
+</svg>
+</div>
+<h2 class="text-xl font-bold leading-tight tracking-[-0.015em] font-display">Narrative Journey</h2>
+</div>
+<div class="flex flex-1 justify-end gap-8">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border border-muted/20" data-alt="Default user avatar placeholder" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDHweyw1eBb0BO5Ud1jby0UzX61SmlCbPJdQrSbk1vMIypuwrSUCLzpB5IAP0g4KkYdUjNckKrbve5ybsQASlnPU4Tt-ASuoHENdrGpUr3szhKfPyN43m3Dvg_OEutOBfE6Bl_0hmUXQ_DgiqXTa5cpp73wDRyrysxiErLJ3gwzyfA_WAO2cP9yB52-FrqYF8BzOMLiBLvWNzDlzBpfDyj2LhF5XR8IPYeaQTb0jT8fA4XU4SZwtOyLgHGc20OqAi_D3Zr0dGR48SU");'></div>
+</div>
+</header>
+<!-- Library Header -->
+<div class="flex flex-wrap justify-between gap-3 mb-8">
+<div class="flex min-w-72 flex-col gap-2">
+<h1 class="text-text-main text-4xl md:text-5xl font-black leading-tight tracking-[-0.033em] font-display">Welcome, Alex.</h1>
+<p class="text-muted text-lg font-medium leading-normal font-sans">Pick a story to begin your journey.</p>
+</div>
+</div>
+<!-- Filter Pills -->
+<div class="flex gap-3 mb-10 flex-wrap overflow-x-auto pb-2 scrollbar-hide">
+<button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-full bg-primary text-white px-6 transition-colors hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background-light">
+<span class="text-sm font-bold tracking-wide uppercase leading-normal font-sans">All</span>
+</button>
+<button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-full bg-surface text-text-main px-6 transition-colors hover:bg-muted/20 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background-light">
+<span class="text-sm font-bold tracking-wide uppercase leading-normal font-sans">Frontend</span>
+</button>
+<button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-full bg-surface text-text-main px-6 transition-colors hover:bg-muted/20 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background-light">
+<span class="text-sm font-bold tracking-wide uppercase leading-normal font-sans">Backend</span>
+</button>
+<button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-full bg-surface text-text-main px-6 transition-colors hover:bg-muted/20 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background-light">
+<span class="text-sm font-bold tracking-wide uppercase leading-normal font-sans">Architecture</span>
+</button>
+</div>
+<!-- Story Cards Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
+<!-- Card 1 (In Progress) -->
+<a class="group flex flex-col bg-surface rounded-xl p-6 shadow-soft hover:shadow-soft-hover transition-all duration-300 hover:-translate-y-1 border border-transparent hover:border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-4 focus:ring-offset-background-light" href="#">
+<div class="flex items-center justify-between mb-4">
+<span class="inline-flex items-center rounded-md bg-muted/10 px-2 py-1 text-xs font-semibold text-muted uppercase tracking-wider font-sans">Architecture</span>
+<span class="flex items-center text-sm text-muted font-sans font-medium">
+<span class="material-symbols-outlined text-[16px] mr-1" data-icon="schedule">schedule</span>
+                                    12 min read
+                                </span>
+</div>
+<h3 class="text-2xl font-bold text-text-main leading-snug mb-3 font-display group-hover:text-primary transition-colors">Core Concept: The Auth Flow</h3>
+<p class="text-muted text-base line-clamp-2 mb-6 font-sans">Understand how JWT tokens are generated, validated, and refreshed across our microservices.</p>
+<div class="mt-auto pt-4 border-t border-muted/20">
+<div class="flex justify-between items-center mb-2">
+<span class="text-xs font-bold text-primary uppercase tracking-wide font-sans">In Progress</span>
+<span class="text-xs font-bold text-muted font-sans">45%</span>
+</div>
+<div class="w-full bg-muted/20 rounded-full h-1.5 overflow-hidden">
+<div class="bg-primary h-1.5 rounded-full transition-all duration-500 ease-out" style="width: 45%"></div>
+</div>
+</div>
+</a>
+<!-- Card 2 (Not Started) -->
+<a class="group flex flex-col bg-surface rounded-xl p-6 shadow-soft hover:shadow-soft-hover transition-all duration-300 hover:-translate-y-1 border border-transparent hover:border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-4 focus:ring-offset-background-light" href="#">
+<div class="flex items-center justify-between mb-4">
+<span class="inline-flex items-center rounded-md bg-muted/10 px-2 py-1 text-xs font-semibold text-muted uppercase tracking-wider font-sans">Frontend</span>
+<span class="flex items-center text-sm text-muted font-sans font-medium">
+<span class="material-symbols-outlined text-[16px] mr-1" data-icon="schedule">schedule</span>
+                                    8 min read
+                                </span>
+</div>
+<h3 class="text-2xl font-bold text-text-main leading-snug mb-3 font-display group-hover:text-primary transition-colors">State Management Strategy</h3>
+<p class="text-muted text-base line-clamp-2 mb-6 font-sans">A deep dive into how we handle global state using Context and reducers to minimize re-renders.</p>
+<div class="mt-auto pt-4 border-t border-muted/20">
+<div class="flex justify-between items-center mb-2">
+<span class="text-xs font-bold text-muted uppercase tracking-wide font-sans">Not Started</span>
+<span class="text-xs font-bold text-muted font-sans">0%</span>
+</div>
+<div class="w-full bg-muted/20 rounded-full h-1.5 overflow-hidden">
+<div class="bg-primary h-1.5 rounded-full w-0"></div>
+</div>
+</div>
+</a>
+<!-- Card 3 (Completed) -->
+<a class="group flex flex-col bg-surface rounded-xl p-6 shadow-soft hover:shadow-soft-hover transition-all duration-300 hover:-translate-y-1 border border-transparent hover:border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-4 focus:ring-offset-background-light opacity-80 hover:opacity-100" href="#">
+<div class="flex items-center justify-between mb-4">
+<span class="inline-flex items-center rounded-md bg-muted/10 px-2 py-1 text-xs font-semibold text-muted uppercase tracking-wider font-sans">Backend</span>
+<span class="flex items-center text-sm text-muted font-sans font-medium">
+<span class="material-symbols-outlined text-[16px] mr-1" data-icon="check_circle">check_circle</span>
+                                    Completed
+                                </span>
+</div>
+<h3 class="text-2xl font-bold text-text-main leading-snug mb-3 font-display group-hover:text-primary transition-colors">Database Indexing Practices</h3>
+<p class="text-muted text-base line-clamp-2 mb-6 font-sans">Review our guidelines for creating composite indexes to optimize read-heavy queries.</p>
+<div class="mt-auto pt-4 border-t border-muted/20">
+<div class="flex justify-between items-center mb-2">
+<span class="text-xs font-bold text-[#5A8B73] uppercase tracking-wide font-sans">Done</span>
+<span class="text-xs font-bold text-[#5A8B73] font-sans">100%</span>
+</div>
+<div class="w-full bg-muted/20 rounded-full h-1.5 overflow-hidden">
+<div class="bg-[#5A8B73] h-1.5 rounded-full w-full"></div>
+</div>
+</div>
+</a>
+<!-- Loading State Example (Hidden by default, shown for design system reference) -->
+<!-- 
+                        <div class="flex flex-col bg-surface rounded-xl p-6 shadow-soft animate-pulse">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="h-6 w-20 bg-muted/20 rounded-md"></div>
+                                <div class="h-4 w-16 bg-muted/20 rounded-md"></div>
+                            </div>
+                            <div class="h-8 w-3/4 bg-muted/20 rounded-md mb-4"></div>
+                            <div class="space-y-2 mb-6">
+                                <div class="h-4 w-full bg-muted/20 rounded-md"></div>
+                                <div class="h-4 w-5/6 bg-muted/20 rounded-md"></div>
+                            </div>
+                            <div class="mt-auto pt-4 border-t border-muted/20">
+                                <div class="flex justify-between items-center mb-2">
+                                    <div class="h-3 w-16 bg-muted/20 rounded-md"></div>
+                                    <div class="h-3 w-6 bg-muted/20 rounded-md"></div>
+                                </div>
+                                <div class="w-full bg-muted/20 rounded-full h-1.5"></div>
+                            </div>
+                        </div> 
+                        -->
+</div>
+<!-- Empty State Example (Hidden by default) -->
+<!--
+                    <div class="flex flex-col items-center justify-center py-20 text-center px-4">
+                        <div class="size-16 rounded-full bg-surface flex items-center justify-center text-muted mb-6">
+                            <span class="material-symbols-outlined text-3xl" data-icon="auto_stories">auto_stories</span>
+                        </div>
+                        <h3 class="text-2xl font-bold text-text-main font-display mb-2">No stories available</h3>
+                        <p class="text-muted font-sans text-lg max-w-md">Ask your manager to assign a journey to begin your codebase onboarding.</p>
+                    </div>
+                    -->
+</div>
+</div>
+</div>
+</div>
+</body></html>

@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+/* ── Design Tokens ────────────────────────────────────────────── */
+@theme {
+  /* Colors */
+  --color-primary: #ee622f;
+  --color-background-light: #f8f6f6;
+  --color-background-dark: #221510;
+  --color-surface: #f0ebe1;
+  --color-text-main: #2c2621;
+  --color-muted: #8c7c70;
+  --color-success: #5A8B73;
+
+  /* Typography */
+  --font-display: "Newsreader", serif;
+  --font-sans: "Newsreader", sans-serif;
+
+  /* Border Radius */
+  --radius-DEFAULT: 0.5rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-soft: 0 8px 24px rgba(44, 38, 33, 0.05);
+  --shadow-soft-hover: 0 12px 32px rgba(44, 38, 33, 0.08);
+}
+
+/* ── Global Styles ────────────────────────────────────────────── */
+body {
+  font-family: "Newsreader", serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background-color: color-mix(in srgb, var(--color-primary) 20%, transparent);
+  color: var(--color-primary);
+}
+
+/* Hide scrollbar for filter pills area */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
