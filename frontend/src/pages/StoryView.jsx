@@ -146,7 +146,7 @@ export default function StoryView() {
         </div>
 
         {/* Right pane — code viewer (sticky) */}
-        <CodeViewer fileName={chapter.codeFile} lines={chapter.codeLines} />
+        <CodeViewer fileName={chapter.codeFile} lines={chapter.codeLines} activeSection={activeSection} />
       </main>
     </div>
   );

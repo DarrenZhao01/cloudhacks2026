@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { HiOutlineDocumentText } from "react-icons/hi";
 
 /* Color mapping for syntax tokens */
@@ -66,7 +66,28 @@ function colorize(text, type) {
   return parts.length ? parts : text;
 }
 
-export default function CodeViewer({ fileName, lines }) {
+export default function CodeViewer({ fileName, lines, activeSection }) {
+  const scrollContainerRef = useRef(null);
+  const lineRefs = useRef([]);
+
+  useEffect(() => {
+    // Find the first line that is active for the current section
+    const firstActiveIndex = lines.findIndex(line => line.activeFor?.includes(activeSection));
+    
+    if (firstActiveIndex !== -1 && lineRefs.current[firstActiveIndex] && scrollContainerRef.current) {
+      const lineElement = lineRefs.current[firstActiveIndex];
+      const container = scrollContainerRef.current;
+      
+      // Calculate offset so the active code block is somewhat centered or slightly below top
+      const offset = lineElement.offsetTop - container.offsetTop - 60;
+      
+      container.scrollTo({
+        top: Math.max(0, offset),
+        behavior: "smooth"
+      });
+    }
+  }, [activeSection, lines]);
+
   return (
     <div className="w-1/2 h-full bg-background-dark relative border-l border-slate-800 shadow-2xl flex flex-col hidden lg:flex">
       {/* macOS-style window chrome */}
@@ -84,29 +105,29 @@ export default function CodeViewer({ fileName, lines }) {
       </div>
 
       {/* Code */}
-      <div className="flex-1 overflow-y-auto p-6 font-mono text-sm leading-relaxed text-slate-300">
+      <div 
+        ref={scrollContainerRef}
+        className="flex-1 overflow-y-auto p-6 font-mono text-sm leading-relaxed text-slate-300"
+      >
         <pre>
           <code>
             {lines.map((line, i) => {
               const inner = colorize(line.text, line.type);
-
-              if (line.highlight) {
-                return (
-                  <div
-                    key={i}
-                    className="relative -mx-6 px-6 py-0.5 bg-primary/10 border-l-4 border-primary"
-                  >
-                    {inner}
-                    {"\n"}
-                  </div>
-                );
-              }
+              const isActive = line.activeFor?.includes(activeSection);
 
               return (
-                <React.Fragment key={i}>
+                <div
+                  key={i}
+                  ref={(el) => (lineRefs.current[i] = el)}
+                  className={`relative -mx-6 px-6 py-0.5 border-l-4 transition-colors duration-300 ${
+                    isActive
+                      ? "bg-primary/10 border-primary"
+                      : "border-transparent hover:bg-white/5"
+                  }`}
+                >
                   {inner}
                   {"\n"}
-                </React.Fragment>
+                </div>
               );
             })}
           </code>

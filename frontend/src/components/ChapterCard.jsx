@@ -20,13 +20,9 @@ function TimelineNode({ status }) {
 
   if (status === "current") {
     return (
-      <>
-        <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center ring-4 ring-white shadow-md">
-          <HiPlay className="text-lg" />
-        </div>
-        {/* Ping animation */}
-        <div className="absolute inset-0 rounded-full bg-primary opacity-20 animate-ping" />
-      </>
+      <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center ring-4 ring-white shadow-md relative z-10">
+        <HiPlay className="text-lg" />
+      </div>
     );
   }
 
@@ -84,7 +80,7 @@ export default function ChapterCard({ chapter, isLast, journeyId, chapterIndex }
             ? "bg-white border border-gray-100 shadow-soft opacity-75 transition-opacity hover:opacity-100"
             : "",
           isCurrent
-            ? "bg-white border-2 border-primary/20 shadow-lg transition-transform hover:-translate-y-1"
+            ? "bg-white border-2 border-primary/20 shadow-lg transition-transform hover:-translate-y-1 hover:shadow-xl animate-card-pulse"
             : "",
           isLocked
             ? "border border-gray-200 bg-gray-50/50"

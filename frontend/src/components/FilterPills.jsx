@@ -4,7 +4,7 @@ const CATEGORIES = ["All", "Frontend", "Backend", "Architecture"];
 
 export default function FilterPills({ active, onChange }) {
   return (
-    <div className="flex gap-3 mb-10 flex-wrap overflow-x-auto pb-2 scrollbar-hide">
+    <div className="flex gap-3 mb-10 flex-wrap overflow-x-auto p-2 -m-2 scrollbar-hide">
       {CATEGORIES.map((cat) => (
         <button
           key={cat}
