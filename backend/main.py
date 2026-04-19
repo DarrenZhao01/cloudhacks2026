@@ -258,7 +258,6 @@ async def orchestrate(request: ChatRequest):
         response_text = str(raw_response)
         
         # Strip potential markdown fences to parse JSON
-        json_match = re.search(r'\{(?:[^{}]|(?R))*\}', response_text.replace('\n', ' '), re.IGNORECASE)
         # Actually a simpler regex or manual strip:
         cleaned_text = response_text.strip()
         if cleaned_text.startswith("```json"):
