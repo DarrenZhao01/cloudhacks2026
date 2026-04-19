@@ -53,7 +53,7 @@ export default function Library() {
               <div className="flex flex-wrap justify-between gap-3 mb-8">
                 <div className="flex min-w-72 flex-col gap-2">
                   <h1 className="text-text-main text-4xl md:text-5xl font-black leading-tight tracking-[-0.033em] font-display">
-                    Welcome, Alex.
+                    Welcome, Darren.
                   </h1>
                   <p className="text-muted text-lg font-medium leading-normal font-sans">
                     Pick a story to begin your journey, or generate a new one from a GitHub URL.

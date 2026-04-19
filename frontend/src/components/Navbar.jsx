@@ -18,7 +18,7 @@ export default function Navbar() {
           </svg>
         </div>
         <h2 className="text-xl font-bold leading-tight tracking-[-0.015em] font-display">
-          Narrative Journey
+          Onboard
         </h2>
       </div>
 

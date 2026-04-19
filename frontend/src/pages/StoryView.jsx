@@ -35,22 +35,28 @@ export default function StoryView() {
     setActiveSection(0);
     setIsComplete(false);
     setIsQuizModalOpen(false);
-    sectionRefs.current = [];
     if (narrativeRef.current) narrativeRef.current.scrollTop = 0;
   }, [chapterNum]);
 
-  /* Track which narrative section is in view */
+  /* Track which narrative section is in view (scroll container = narrative column) */
   useEffect(() => {
+    const root = narrativeRef.current;
+    if (!root || !chapter?.sections?.length) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const idx = sectionRefs.current.indexOf(entry.target);
-            if (idx !== -1) setActiveSection(idx);
-          }
-        });
+        const visible = entries
+          .filter((e) => e.isIntersecting && e.intersectionRatio > 0)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        if (visible.length === 0) return;
+        const idx = sectionRefs.current.indexOf(visible[0].target);
+        if (idx !== -1) setActiveSection(idx);
       },
-      { rootMargin: "-40% 0px -40% 0px", threshold: 0.1 }
+      {
+        root,
+        rootMargin: "-38% 0px -38% 0px",
+        threshold: [0, 0.05, 0.1, 0.2, 0.35, 0.5, 0.75, 1],
+      }
     );
 
     sectionRefs.current.forEach((el) => {
@@ -58,7 +64,7 @@ export default function StoryView() {
     });
 
     return () => observer.disconnect();
-  }, []);
+  }, [chapterNum, journeyId, chapter]);
 
   /* Track when user scrolls to bottom marker */
   useEffect(() => {
